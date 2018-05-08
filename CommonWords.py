@@ -10,11 +10,46 @@ class Message(object):
 test = Message("05/02/2018", "01:52:47 PM", "Viki", "118? Tady je to lepší...")
 
 class MessageList(object):
-    def __init__(self):
-        messages = []
-        amounts = {}
-    def scrape(self, csvfile):
-        pass
+    def __init__(self, messages = [], amounts = {}):
+        self.messages = messages
+        self.amounts = amounts
+
+    def scrape(self, csvfile, invalids = [",", ".", "*", "(", ")", "?", "[", "]"]):
+        f = open(csvfile, "r", encoding="utf8")
+        empties = 0
+        while True:
+            line = f.readline()
+            if line == "":
+                empties += 1
+                if empties >= 20:
+                    break
+            else:
+                empties = 0
+                line = line.replace(",", "‼", 4)
+                for i in invalids:   line = line.replace(i, "")
+                line = line.lower()
+                line = line[:-1]
+                line = line.split("‼")
+                if len(line) == 5:
+                    self.messages.append(Message(line[0], line[1], line[2], line[4]))
+
+    def word_amounts(self):
+        for i in self.messages:
+            words = i.text.split(" ")
+            for i in words:
+                if i in self.amounts.keys():
+                    self.amounts[i] += 1
+                else:
+                    self.amounts[i] = 1
+
+def reverse_dict(dic):
+    ret = {}
+    for i in dic.keys():
+        if not dic[i] in ret.keys():
+            ret[dic[i]] = [i]
+        else:
+            ret[dic[i]].append(i)
+    return ret
 
 
 def FileLength(fname):
@@ -23,13 +58,19 @@ def FileLength(fname):
     length = 0
     while True:
         length += 1
-        try:    line = f.readline()
-        except UnicodeDecodeError:  line = ""
         if line == "":
             empties += 1
             if empties >= 20:
-                return length - 20
+                return length - 30
         else:
             empties = 0
 
-print(FileLength("Viki.csv"))
+
+main = MessageList()
+main.scrape("Viki.csv")
+main.word_amounts()
+out = open("WordAmount.txt", "w+", encoding="utf8")
+reverse_amounts = reverse_dict(main.amounts)
+sorted_keys = sorted(reverse_amounts.keys(), reverse = True)
+for i in sorted_keys:
+    out.write(str(i) + ":" + str(reverse_amounts[i]) + "\n")
