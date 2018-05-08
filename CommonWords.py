@@ -14,7 +14,7 @@ class MessageList(object):
         self.messages = messages
         self.amounts = amounts
 
-    def scrape(self, csvfile, invalids = [",", ".", "*", "(", ")", "?", "[", "]"]):
+    def scrape(self, csvfile, invalids = [",", ".", "*", "(", ")", "?", "[", "]", "'", "\""]):
         f = open(csvfile, "r", encoding="utf8")
         empties = 0
         while True:
@@ -72,5 +72,7 @@ main.word_amounts()
 out = open("WordAmount.txt", "w+", encoding="utf8")
 reverse_amounts = reverse_dict(main.amounts)
 sorted_keys = sorted(reverse_amounts.keys(), reverse = True)
+n = 0
 for i in sorted_keys:
-    out.write(str(i) + ":" + str(reverse_amounts[i]) + "\n")
+    n += 1
+    out.write(str(n) + ". " + str(i) + ":" + str(reverse_amounts[i]) + "\n")
