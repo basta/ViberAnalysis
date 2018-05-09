@@ -7,7 +7,7 @@ class Message(object):
             self.time = str(int(time[:2]) + 12) + time[2:8]
         else:
             self.time = time
-test = Message("05/02/2018", "01:52:47 PM", "Viki", "118? Tady je to lepší...")
+
 
 class MessageList(object):
     def __init__(self, messages = [], amounts = {}):
@@ -42,6 +42,7 @@ class MessageList(object):
                 else:
                     self.amounts[i] = 1
 
+
 def reverse_dict(dic):
     ret = {}
     for i in dic.keys():
@@ -52,11 +53,12 @@ def reverse_dict(dic):
     return ret
 
 
-def FileLength(fname):
+def file_length(fname):
     f = open(fname, "r", encoding="utf8")
     empties = 0
     length = 0
     while True:
+        line = f.readline()
         length += 1
         if line == "":
             empties += 1
