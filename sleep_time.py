@@ -6,7 +6,7 @@ class Message(object):
         self.date = date
         self.sender = sender
         self.text = text
-        if "pm" in time:
+        if "PM" in time:
             self.time = str(int(time[:2]) + 12) + time[2:8]
         else:
             self.time = time
@@ -70,24 +70,52 @@ for i in main.messages:
         days.append(day_message)
         date = i.date
         day_message = []
-daily_messages = []
-for i in days:
-    daily_messages.append(len(i))
 
-averaged_daily_messages = []
-for i in range(len(daily_messages)):
+last_messages = []
+for i in days:
+    try:
+        last_messages.append(i[-1])
+    except IndexError:
+        last_messages.append("ignore")
+while True:
+    try:
+        last_messages.remove("ignore")
+    except ValueError:
+        break
+
+last_messages_times = []
+last_messages_times_seconds = []
+for i in last_messages: last_messages_times.append(i.time)
+for i in last_messages_times:
+    seconds = 0
+    seconds += int(i[0] + i[1])*3600
+    seconds += int(i[3] + i[4])*60
+    seconds += int(i[6] + i[7])
+    if "pm" in i:
+        seconds += 12*3600
+    last_messages_times_seconds.append(seconds)
+past_midnight = []
+past_midnight_height = []
+for i in range(len(last_messages_times_seconds)):
+    if int(last_messages_times_seconds[i]) > 84000:
+        past_midnight.append(i)
+for i in past_midnight: past_midnight_height.append(86400)
+averaged_last_messages_times_seconds = []
+for i in range(len(last_messages_times_seconds)):
     divider = 1
     amount = 0
-    amount += daily_messages[i]
+    amount += last_messages_times_seconds[i]
     for offset in range(0, 10):
-        if not i + offset > len(daily_messages) - 1:
+        if not i + offset > len(last_messages_times_seconds) - 1:
             divider += 1
-            amount += daily_messages[i + offset]
+            amount += last_messages_times_seconds[i + offset]
         if not i - offset < 0:
             divider += 1
-            amount += daily_messages[i - offset]
-    averaged_daily_messages.append(amount / divider)
+            amount += last_messages_times_seconds[i - offset]
+    averaged_last_messages_times_seconds.append(amount / divider)
 
-plt.plot(daily_messages)
-plt.plot(averaged_daily_messages)
+print(len(past_midnight) / len(last_messages_times_seconds))
+plt.plot(last_messages_times_seconds)
+plt.plot(averaged_last_messages_times_seconds)
+plt.scatter([past_midnight], [past_midnight_height])
 plt.show()
